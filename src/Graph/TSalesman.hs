@@ -57,7 +57,8 @@ dijkstraD graph [a, b] = do
 
 dijkstraD graph (head : head' : rest) = do
     let d = dijkstraD graph [head, head']
-    d + (dijkstraD graph (head' : rest))
+        d' = (dijkstraD graph (head' : rest))
+    d + d'
 
 solveTSP :: (Ord v, Memoizable v, NFData v) => Graph v Double -> StdGen -> Int -> [v] -> [v]
 solveTSP graph randSeed numAttempts nois = do

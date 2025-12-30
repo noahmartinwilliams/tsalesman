@@ -1,5 +1,7 @@
+{-# LANGUAGE DeriveGeneric, DeriveAnyClass #-}
 module Main (main) where
 
+import Control.DeepSeq
 import Control.Monad.Except
 import Control.Parallel
 import Control.Parallel.Strategies
@@ -7,6 +9,7 @@ import Data.List.Split
 import Data.Map as Map
 import GHC.Conc
 import Graph.DijkstraSimple
+import GHC.Generics
 import Graph.TSalesman
 import ParSort
 import System.Console.GetOpt
@@ -16,6 +19,9 @@ import System.Random
 import Text.Megaparsec
 import Text.Megaparsec.CSV
 import Text.Megaparsec.DIMACS.Graph
+
+instance NFData (EdgeTo v e) where
+    rnf (EdgeTo { edgeTo = v, edgeToWeight = e})  = seq e (seq v ())
 
 parseList :: String -> [String]
 parseList = Data.List.Split.endBy ","
@@ -51,9 +57,9 @@ main' input stdgen cnf@(Conf { cnfRandSeed = rs, cnfUseDIMACS = True, cnfNumAtte
     parsed <- Main.parse input cnf
     let newSeed = setSeed cnf stdgen
         sorted = parSort parsed
-        uniqed = uniqem sorted
-        uniqed' = (Prelude.map (\(a, b) -> (a, Prelude.map (\(c, d) -> EdgeTo { edgeTo = c, edgeToWeight = d}) b)) uniqed) `using` (parListChunk numCapabilities rpar)
-        mapped = Map.fromList uniqed'
+        uniqed = deepseq sorted (uniqem sorted)
+        uniqed' = (Prelude.map (\(a, b) -> (a, Prelude.map (\(c, d) -> EdgeTo { edgeTo = c, edgeToWeight = d}) b)) uniqed) `using` (parListChunk numCapabilities (rparWith rseq))
+        mapped = deepseq uniqed' (Map.fromList uniqed')
         graph = Graph { graphAsMap = mapped }
         path = solveTSP graph newSeed (cnfNumAttempts cnf) (cnfNois cnf)
     return (Prelude.foldr (\x -> \y -> x ++ "\n" ++ y) "" path)

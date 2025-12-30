@@ -44,7 +44,7 @@ packages:
 
 extra-deps:
 - git: https://github.com/noahmartinwilliams/megaparsec-dimacs-graph.git
-  commit: c9dceca51e09e8615e645564dbcad1ce0e377041
+  commit: f8436e185963de56caf7d2ed1bd154a755040d64
 - dijkstra-simple-0.1.0@sha256:c8ef4401c26369aaea1531eafb59a253cfe9b88f5608c4874e7a9e4d64d0133a,1676
 - megaparsec-csv-0.1@sha256:5e3fd0412f71f95bb31be71632216d4c57b389c6d0f55b0f6836207baf215213,1301
 - fingertree-0.1.4.2@sha256:b368fda61b14073bd798f45c8fa91e1c5331628193a8b88d93fb5a4341849c64,2063

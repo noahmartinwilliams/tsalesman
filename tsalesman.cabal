@@ -59,6 +59,7 @@ executable tsalesman
   build-depends:
       base >=4.7 && <5
     , containers
+    , deepseq
     , dijkstra-simple
     , megaparsec
     , megaparsec-csv
