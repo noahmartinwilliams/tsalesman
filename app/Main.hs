@@ -18,7 +18,8 @@ defaultConf = Conf { cnfRandSeed = Nothing, cnfEscapeChar = Nothing, cnfSeperato
 options :: [OptDescr (Conf -> Conf)]
 options = [
     Option ['h'] ["help"] (NoArg (\cnf -> cnf { cnfNeedHelp = True})) "Print help message",
-    Option ['S'] ["seed"] (ReqArg (\arg -> \cnf -> cnf { cnfRandSeed = (Just (read arg :: Int))}) "<integer>") "Specify what random seed to use. Default is to randomly pick a seed."
+    Option ['S'] ["seed"] (ReqArg (\arg -> \cnf -> cnf { cnfRandSeed = (Just (read arg :: Int))}) "<integer>") "Specify what random seed to use. Default is to randomly pick a seed.",
+    Option ['G'] ["dimacs"] (NoArg (cnf -> cnf {cnfUseDIMACES = True })) "Use DIMACS graph file format."
    ] 
 
 setSeed :: Conf -> StdGen -> StdGen
