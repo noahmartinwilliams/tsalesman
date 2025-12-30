@@ -33,6 +33,19 @@ ghc-options:
 - -Wpartial-fields
 - -Wredundant-constraints
 
+library:
+  source-dirs: src/
+  dependencies:
+  - containers 
+  - deepseq
+  - dijkstra-simple
+  - parallel
+  - ieee754
+  - transformers
+  - random
+  - memoize
+  - mtl
+
 executables:
   tsalesman:
     main:                Main.hs
@@ -42,13 +55,16 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
+    - containers
     - dijkstra-simple
     - megaparsec
     - megaparsec-csv
     - megaparsec-dimacs-graph
     - mtl
+    - parallel
     - random
     - split
+    - tsalesman
 
 tests:
   tsalesman-test:

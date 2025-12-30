@@ -23,9 +23,33 @@ source-repository head
   type: git
   location: https://github.com/noahmartinwilliams/tsalesman
 
+library
+  exposed-modules:
+      Graph.TSalesman
+  other-modules:
+      Paths_tsalesman
+  autogen-modules:
+      Paths_tsalesman
+  hs-source-dirs:
+      src/
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+  build-depends:
+      base >=4.7 && <5
+    , containers
+    , deepseq
+    , dijkstra-simple
+    , ieee754
+    , memoize
+    , mtl
+    , parallel
+    , random
+    , transformers
+  default-language: Haskell2010
+
 executable tsalesman
   main-is: Main.hs
   other-modules:
+      ParSort
       Paths_tsalesman
   autogen-modules:
       Paths_tsalesman
@@ -34,13 +58,16 @@ executable tsalesman
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , containers
     , dijkstra-simple
     , megaparsec
     , megaparsec-csv
     , megaparsec-dimacs-graph
     , mtl
+    , parallel
     , random
     , split
+    , tsalesman
   default-language: Haskell2010
 
 test-suite tsalesman-test
