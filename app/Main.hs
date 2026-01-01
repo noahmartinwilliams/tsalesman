@@ -50,10 +50,15 @@ parse str (Conf { cnfUseDIMACS = True}) = do
     case parsed of 
         (Left l) -> throwError (errorBundlePretty l)
         (Right r) -> let (GrFile _ arcs) = r in return (Prelude.map (\(ArcLine a b c) -> (show a, show b, fromIntegral c :: Double)) arcs)
+parse str _ = do
+    let parsed = runParser (csv ',' Nothing) "stdin" str
+    case parsed of 
+        (Left l) -> throwError (errorBundlePretty l)
+        (Right r) -> return (Prelude.map (\(a : b : c : _) -> (a, b, read c :: Double)) r)
 
 main' :: String -> StdGen -> Conf -> Except String String
 main' _ _ (Conf { cnfNeedHelp = True}) = return (usageInfo "Usage: tsalesman " options)
-main' input stdgen cnf@(Conf { cnfRandSeed = rs, cnfUseDIMACS = True, cnfNumAttempts = noA, cnfNois = nois}) = do
+main' input stdgen cnf@(Conf { cnfRandSeed = rs, cnfNumAttempts = noA, cnfNois = nois}) = do
     parsed <- Main.parse input cnf
     let newSeed = setSeed cnf stdgen
         sorted = parSort parsed
