@@ -23,8 +23,12 @@ import Text.Megaparsec.DIMACS.Graph
 instance NFData (EdgeTo v e) where
     rnf (EdgeTo { edgeTo = v, edgeToWeight = e})  = seq e (seq v ())
 
-parseList :: String -> [String]
-parseList = Data.List.Split.endBy ","
+parseList :: String -> Conf -> [String]
+parseList str cnf = do
+    let parsed = runParser (csv (cnfSeperator cnf) (cnfEscapeChar cnf)) "argument" str
+    case parsed of 
+        (Left l) -> error (errorBundlePretty l)
+        (Right r) -> r !! 0
 
 data Conf = Conf { cnfRandSeed :: Maybe Int, cnfEscapeChar :: Maybe Char, cnfSeperator :: Char, cnfUseDIMACS :: Bool, cnfNeedHelp :: Bool, cnfNumAttempts :: Int, cnfNois :: [String] } deriving(Eq)
 
@@ -36,8 +40,10 @@ options = [
     Option ['h'] ["help"] (NoArg (\cnf -> cnf { cnfNeedHelp = True})) "Print help message",
     Option ['S'] ["seed"] (ReqArg (\arg -> \cnf -> cnf { cnfRandSeed = (Just (read arg :: Int))}) "<integer>") "Specify what random seed to use. Default is to randomly pick a seed.",
     Option ['G'] ["dimacs"] (NoArg (\cnf -> cnf {cnfUseDIMACS = True })) "Use DIMACS graph file format.",
-    Option ['N'] ["noi"] (ReqArg (\arg -> \cnf -> cnf { cnfNois = (parseList arg)}) "node1,node2,etc" ) "Specify nodes of interest in comma seperated list.",
-    Option ['A'] ["attempts"] (ReqArg (\arg -> \cnf -> cnf {cnfNumAttempts = (read arg :: Int)} ) "<integer>") "Specify number of attempts to make."
+    Option ['N'] ["noi"] (ReqArg (\arg -> \cnf -> cnf { cnfNois = (parseList arg cnf)}) "node1,node2,etc" ) "Specify nodes of interest in comma seperated list.",
+    Option ['A'] ["attempts"] (ReqArg (\arg -> \cnf -> cnf {cnfNumAttempts = (read arg :: Int)} ) "<integer>") "Specify number of attempts to make.",
+    Option ['s'] ["seperator"] (ReqArg (\arg -> \cnf -> cnf { cnfSeperator = (arg !! 0) }) "<char>") "Specify what seperator character to use for CSV files.",
+    Option ['e'] ["escape"] (ReqArg (\arg -> \cnf -> cnf {cnfEscapeChar = (Just (arg !! 0))} ) "<char>" ) "Specify what the escape character should be for CSV files (default is no escape character)."
    ] 
 
 setSeed :: Conf -> StdGen -> StdGen
@@ -50,8 +56,8 @@ parse str (Conf { cnfUseDIMACS = True}) = do
     case parsed of 
         (Left l) -> throwError (errorBundlePretty l)
         (Right r) -> let (GrFile _ arcs) = r in return (Prelude.map (\(ArcLine a b c) -> (show a, show b, fromIntegral c :: Double)) arcs)
-parse str _ = do
-    let parsed = runParser (csv ',' Nothing) "stdin" str
+parse str cnf = do
+    let parsed = runParser (csv (cnfSeperator cnf) (cnfEscapeChar cnf)) "stdin" str 
     case parsed of 
         (Left l) -> throwError (errorBundlePretty l)
         (Right r) -> return (Prelude.map (\(a : b : c : _) -> (a, b, read c :: Double)) r)
